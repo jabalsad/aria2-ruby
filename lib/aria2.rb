@@ -48,11 +48,11 @@ module Aria2
     end
 
     def unpause(gid)
-      rpc_call('unPause', [gid])
+      rpc_call('unpause', [gid])
     end
 
     def unpause_all
-      rpc_call('unPauseAll')
+      rpc_call('unpauseAll')
     end
 
     def download(url, path, opts={})
@@ -125,6 +125,20 @@ module Aria2
       rpc_call('tellActive')
     end
 
+    def get_waiting
+      num_waiting = global_status["numWaiting"].to_i
+      rpc_call('tellWaiting',[0,num_waiting])
+    end
+
+    def get_stopped
+      num_stopped = global_status["numStopped"].to_i
+      rpc_call('tellStopped',[0,num_stopped])
+    end
+
+    def global_status
+      rpc_call('getGlobalStat')
+    end
+
     def query_status(gid)
       status = rpc_call('tellStatus', [gid, [
         'status', 
@@ -177,9 +191,9 @@ module Aria2
       id = 'ruby-aria2'
       params_encoded = Base64.encode64(JSON.generate(params))
       if @token != '' then
-        response = get("#{self.rpc_path}", {'token' => @token, 'method' => method, 'id' => id, 'params' => params_encoded})
+        response = get("#{rpc_path}", {'token' => @token, 'method' => method, 'id' => id, 'params' => params_encoded})
       else
-        response = get("#{self.rpc_path}", {'method' => method, 'id' => id, 'params' => params_encoded})
+        response = get("#{rpc_path}", {'method' => method, 'id' => id, 'params' => params_encoded})
       end
       answer = JSON.parse(response['body'])
 
